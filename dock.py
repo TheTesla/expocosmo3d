@@ -34,13 +34,23 @@ def model_function(p):
     z_screw = 30
     zd_screws = 40
     y_screws = -w_hld/2+l_hld/2
+    z_slot = 15
+    h_slot = 20
+    zd_slot = 40
+    w_slot = 5
+    ad_slot = 25
+
+    rslts = (x**2 + (y-rbottle)**2)**0.5
+    angslts = np.arctan2(x, y-rbottle)
 
     outer = solid_model((x, y+t_wall, z, (rfase, rbottle+t_wall, h, w_hld, l_hld+2*t_wall, rfase)))
     inner = solid_model((x, y, z-t_wall, (rfase, rbottle, h+rfase+rcube, w_hld, l_hld, rcube)))
     hole_mid_profile = bd.fz_circle((x,y-y_screws), r_screws)
     holes_x = bd.fz_circle(((z-z_screw+zd_screws/2)%zd_screws-zd_screws/2,y-y_screws), r_screws)
     holes_y = cmb.fz_and_chamfer(rfase, bd.fz_circle(((z-z_screw+zd_screws/2)%zd_screws-zd_screws/2,x), r_screws), y-w_hld-t_wall)
-    solid = cmb.fz_and_chamfer(rfase, outer, -inner, -hole_mid_profile, -holes_x, -holes_y, z-h+y*0.5)
+    #slots = bd.fz_cuboid((x,y-rbottle,(z-z_slot+zd_slot/2)%zd_slot-zd_slot/2),(2*(rbottle+t_wall+rfase), w_slot, h_slot), rfase)
+    slots = bd.fz_cuboid((rslts-rbottle/2, (angslts*rslts+ad_slot/2)%ad_slot-ad_slot/2,(z-z_slot+zd_slot/2)%zd_slot-zd_slot/2),(2*(rbottle+t_wall+rfase), w_slot, h_slot), rfase)
+    solid = cmb.fz_and_chamfer(rfase, outer, -inner, -hole_mid_profile, -holes_x, -holes_y, -slots, z-h+y*0.5)
     if solid > 0:
         return False
 
